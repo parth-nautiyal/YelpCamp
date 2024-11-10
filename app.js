@@ -2,6 +2,7 @@ const express = require('express')
 const mongoose = require('mongoose')
 const Campground = require('./models/campground')
 const bodyParser = require('body-parser')
+const ejsMate = require('ejs-mate');
 const app = express()
 const path = require('path')
 const methodOverride=require('method-override')
@@ -14,6 +15,7 @@ async function main(){
     console.log("Connected with Mongoose")
 }
 
+app.engine('ejs', ejsMate);
 app.set('views',path.join(__dirname,'/views'))
 app.set('views engine','ejs')
 
