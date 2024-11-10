@@ -57,21 +57,38 @@ YelpCamp is a web application that allows users to view, create, update, and del
 
 7. Open your browser and navigate to `http://localhost:3000` to use the app.
 
-## Project Structure
+# Project Structure
 
-```bash
-yelpcamp/
-├── models/
-│   └── campground.js   # Mongoose schema for campgrounds
-├── public/             # Static assets (CSS, images, etc.)
-├── seeds/
-│   ├── cities.js       # Sample city data for seeding campgrounds
-│   ├── index.js        # Main seed file to populate the database
-│   └── seedHelpers.js  # Descriptors and place names for generating random camp titles
-├── views/
-│   ├── home.ejs        # View for displaying all campgrounds
-│   ├── new.ejs         # Form for creating a new campground
-│   ├── show.ejs        # View for displaying a single campground's details
-│   └── edit.ejs        # Form for editing a campground
-├── app.js              # Main application file
-└── README.md           # Project documentation
+This project, **YelpCamp**, is organized as follows:
+
+```
+YelpCamp
+├── models
+│   └── campground.js
+├── node_modules
+├── seeds
+│   ├── cities.js
+│   ├── index.js
+│   └── seedHelpers.js
+├── views
+│   ├── layouts
+│   ├── partials
+│   ├── edit.ejs
+│   ├── home.ejs
+│   ├── new.ejs
+│   └── show.ejs
+├── .gitignore
+├── app.js
+├── package-lock.json
+├── package.json
+└── README.md
+```
+
+### Description of Important Files and Folders
+
+- **models/**: Contains data models, such as `campground.js`, which defines the campground schema.
+- **seeds/**: Holds seeding scripts, including `cities.js`, `index.js`, and `seedHelpers.js` for populating the database with initial data.
+- **views/**: Contains the views rendered by the application. Organized into `layouts`, `partials`, and other EJS templates like `edit.ejs`, `home.ejs`, `new.ejs`, and `show.ejs`.
+- **app.js**: The main application file where the server is set up and routes are defined.
+- **package.json**: Lists dependencies and scripts required for the project.
+- **.gitignore**: Specifies files and directories to be ignored by Git, such as `node_modules/`.
