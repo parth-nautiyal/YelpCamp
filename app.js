@@ -6,6 +6,8 @@ const ejsMate = require('ejs-mate');
 const app = express()
 const path = require('path')
 const methodOverride=require('method-override')
+const catchAsync = require('./utils/catchAsync')
+const ExpressError = require('./utils/ExpressError')
 
 
 
@@ -28,35 +30,42 @@ app.get('/', (req,res)=>{
     res.send("This is YELPCAMP")
 })
 
-app.get('/campgrounds',async(req,res)=>{
+app.get('/campgrounds',catchAsync (async(req,res)=>{
     const camps = await Campground.find({})
     res.render('home.ejs',{ camps })
-})
+}))
 app.get('/campgrounds/new',(req,res)=>{
     res.render('new.ejs')
 })
-app.get('/campgrounds/:id',async (req,res)=>{
+app.get('/campgrounds/:id',catchAsync (async (req,res)=>{
     const camp = await Campground.findById(req.params.id);
     res.render('show.ejs',{ camp })
-})
-app.get('/campgrounds/:id/edit', async(req,res) =>{
+}))
+app.get('/campgrounds/:id/edit', catchAsync (async(req,res) =>{
     const camp = await Campground.findById(req.params.id)
     res.render('edit.ejs', { camp })
-})
-app.patch('/campgrounds/:id', async(req,res) =>{
+}))
+app.patch('/campgrounds/:id', catchAsync (async(req,res) =>{
     const {id} = req.params;
     const camp = await Campground.findByIdAndUpdate(id, {...req.body.campground})
     res.redirect(`/campgrounds/${camp._id}`)
-})
-app.post('/campgrounds',async(req,res)=>{
+}))
+app.post('/campgrounds',catchAsync (async(req,res)=>{
     const camp = new Campground(req.body.campground)
     await camp.save()
     res.redirect(`/campgrounds/${camp._id}`)
-})
-app.delete('/campgrounds/:id', async(req,res) =>{
+}))
+app.delete('/campgrounds/:id', catchAsync (async(req,res) =>{
     const {id} = req.params
     await Campground.findByIdAndDelete(id);
     res.redirect('/campgrounds');
+}))
+app.all(/(.*)/, (req, res, next) => {
+    next(new ExpressError(404, 'Page Not Found'))
+})
+app.use((err,req,res,next)=>{
+    const {statusCode=500,message='Something went wrong'} = err;
+    res.status(statusCode).send(message)
 })
 app.listen(3000, ()=>{
     console.log("App runs at 3000!!!")
