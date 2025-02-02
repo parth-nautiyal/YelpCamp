@@ -9,7 +9,7 @@ const path = require('path')
 const methodOverride = require('method-override')
 const catchAsync = require('./utils/catchAsync')
 const ExpressError = require('./utils/ExpressError');
-const { title } = require('process');
+
 
 main().catch(err => console.log(err));
 async function main() {
@@ -72,7 +72,7 @@ app.delete('/campgrounds/:id', catchAsync(async (req, res) => {
 app.all(/(.*)/, (req, res, next) => {
     next(new ExpressError(404, 'Page Not Found'))
 })
-app.use((err, req, res, next) => {
+app.use((err, req, res,next) => {
     const { statusCode = 500 } = err;
     if (!err.message) err.message = "Something went wrong"
     res.status(statusCode).render('error.ejs', { err })
