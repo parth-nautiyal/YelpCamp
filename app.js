@@ -9,6 +9,7 @@ const path = require('path')
 const methodOverride = require('method-override')
 const catchAsync = require('./utils/catchAsync')
 const ExpressError = require('./utils/ExpressError');
+const Review = require('./models/reviews')
 
 
 main().catch(err => console.log(err));
@@ -62,6 +63,14 @@ app.patch('/campgrounds/:id', validateCampground, catchAsync(async (req, res) =>
 app.post('/campgrounds', validateCampground, catchAsync(async (req, res) => {
     const camp = new Campground(req.body.campground)
     await camp.save()
+    res.redirect(`/campgrounds/${camp._id}`)
+}))
+app.post('/campgrounds/:id/reviews', catchAsync(async (req, res) => { 
+    const camp = await Campground.findById(req.params.id);
+    const review = new Review(req.body.review);
+    camp.review.push(review);
+    await review.save();
+    await camp.save();
     res.redirect(`/campgrounds/${camp._id}`)
 }))
 app.delete('/campgrounds/:id', catchAsync(async (req, res) => {
