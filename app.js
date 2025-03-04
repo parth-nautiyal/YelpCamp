@@ -3,7 +3,7 @@ const mongoose = require('mongoose')
 const Campground = require('./models/campground')
 const bodyParser = require('body-parser')
 const ejsMate = require('ejs-mate');
-const {campgroundSchema} = require('./schema')
+const {campgroundSchema, reviewSchema} = require('./schema')
 const app = express()
 const path = require('path')
 const methodOverride = require('method-override')
@@ -36,6 +36,17 @@ const validateCampground = (req, res, next) => {
         next();
     }
 }
+
+const validateReviews = (req, res, next) => {
+    const { error } = reviewSchema.validate(req.body);
+    if (error) {
+        const msg = error.details.map(el => el.message).join(',')
+        throw new ExpressError(400, msg)
+    }
+    else {
+        next();
+    }
+}
 app.get('/', (req, res) => {
     res.send("This is YELPCAMP")
 })
@@ -48,7 +59,8 @@ app.get('/campgrounds/new', (req, res) => {
     res.render('new.ejs')
 })
 app.get('/campgrounds/:id', catchAsync(async (req, res) => {
-    const camp = await Campground.findById(req.params.id);
+    const camp = await Campground.findById(req.params.id).populate('review');
+    console.log(camp);
     res.render('show.ejs', { camp })
 }))
 app.get('/campgrounds/:id/edit', catchAsync(async (req, res) => {
@@ -65,7 +77,7 @@ app.post('/campgrounds', validateCampground, catchAsync(async (req, res) => {
     await camp.save()
     res.redirect(`/campgrounds/${camp._id}`)
 }))
-app.post('/campgrounds/:id/reviews', catchAsync(async (req, res) => { 
+app.post('/campgrounds/:id/reviews', validateReviews, catchAsync(async (req, res) => { 
     const camp = await Campground.findById(req.params.id);
     const review = new Review(req.body.review);
     camp.review.push(review);
@@ -86,6 +98,6 @@ app.use((err, req, res,next) => {
     if (!err.message) err.message = "Something went wrong"
     res.status(statusCode).render('error.ejs', { err })
 })
-app.listen(3000, () => {
-    console.log("App runs at 3000!!!")
+app.listen(3001, () => {
+    console.log("App runs at 3001!!!")
 })
