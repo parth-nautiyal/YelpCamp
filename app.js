@@ -24,6 +24,7 @@ app.set('views engine', 'ejs')
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(methodOverride('_method'))
+app.use(express.static(path.join(__dirname,'public')))
 
 app.use('/campgrounds',campgrounds)
 app.use('/campgrounds/:id/reviews', reviews)
