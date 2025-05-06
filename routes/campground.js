@@ -25,7 +25,6 @@ Router.get('/new', (req, res) => {
 })
 Router.get('/:id', catchAsync(async (req, res) => {
     const camp = await Campground.findById(req.params.id).populate('review');
-    console.log(camp);
     res.render('show.ejs', { camp })
 }))
 Router.get('/:id/edit', catchAsync(async (req, res) => {
@@ -40,6 +39,7 @@ Router.patch('/:id', validateCampground, catchAsync(async (req, res) => {
 Router.post('/', validateCampground, catchAsync(async (req, res) => {
     const camp = new Campground(req.body.campground)
     await camp.save()
+    req.flash('success','Successfully made a new Campground')
     res.redirect(`/campgrounds/${camp._id}`)
 }))
 Router.delete('/:id', catchAsync(async (req, res) => {
