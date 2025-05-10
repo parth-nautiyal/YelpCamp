@@ -7,9 +7,14 @@ const path = require('path')
 const methodOverride = require('method-override')
 const ExpressError = require('./utils/ExpressError');
 const flash = require('connect-flash')
+const passport = require('passport')
+const LocalStrategy = require('passport-local')
+const user = require('./models/user')
 
-const campgrounds = require('./routes/campground')
-const reviews = require('./routes/reviews');
+const campgroundRoutes = require('./routes/campground')
+const reviewRoutes = require('./routes/reviews');
+const userRoutes = require('./routes/users')
+
 const session = require('express-session');
 
 
@@ -28,6 +33,7 @@ app.use(bodyParser.urlencoded({ extended: true }))
 app.use(methodOverride('_method'))
 app.use(express.static(path.join(__dirname,'public')))
 
+
 const sessionInfo = {
     secret: 'thisisasceret',  // used to sign the session ID cookie (so it can’t be tampered)
     resave: false,            // don’t save session if nothing is modified
@@ -42,14 +48,22 @@ const sessionInfo = {
 app.use(session(sessionInfo))
 app.use(flash())
 
+app.use(passport.initialize())
+app.use(passport.session())
+passport.use(new LocalStrategy(user.authenticate()))
+
+passport.serializeUser(user.serializeUser()) // how we store the user in the session
+passport.deserializeUser(user.deserializeUser())// how we get the user out of the session or Defines how to get the full user object back from the session data.
+
 app.use((req,res,next)=>{
     res.locals.success = req.flash('success')
     res.locals.error=req.flash('error')
     next();
 })
 
-app.use('/campgrounds',campgrounds)
-app.use('/campgrounds/:id/reviews', reviews)
+app.use('/campgrounds',campgroundRoutes)
+app.use('/campgrounds/:id/reviews', reviewRoutes)
+app.use('/',userRoutes)
 
 
 app.get('/', (req, res) => {
@@ -64,6 +78,6 @@ app.use((err, req, res,next) => {
     if (!err.message) err.message = "Something went wrong"
     res.status(statusCode).render('error.ejs', { err })
 })
-app.listen(3001, () => {
-    console.log("App runs at 3001!!!")
+app.listen(3000, () => {
+    console.log("App runs at 3000!!!")
 })
