@@ -18,11 +18,15 @@ const userRoutes = require('./routes/users')
 const session = require('express-session');
 
 
-main().catch(err => console.log(err));
-async function main() {
-    await mongoose.connect('mongodb://127.0.0.1:27017/yelpcamp');
-    console.log("Connected with Mongoose")
-}
+mongoose.connect('mongodb://localhost:27017/yelpcamp')
+  .then(() => {
+    console.log("MongoDB connection open");
+  })
+  .catch(err => {
+    console.log("MongoDB connection error", err);
+  });
+
+
 
 app.engine('ejs', ejsMate);
 app.set('views', path.join(__dirname, '/views'))
@@ -56,6 +60,7 @@ passport.serializeUser(user.serializeUser()) // how we store the user in the ses
 passport.deserializeUser(user.deserializeUser())// how we get the user out of the session or Defines how to get the full user object back from the session data.
 
 app.use((req,res,next)=>{
+    res.locals.currentUser = req.user
     res.locals.success = req.flash('success')
     res.locals.error=req.flash('error')
     next();

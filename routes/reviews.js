@@ -17,7 +17,7 @@ const validateReviews = (req, res, next) => {
         next();
     }
 }
-Router.post('/', validateReviews, catchAsync(async (req, res) => { 
+Router.post('/', isLoggedIn, validateReviews, catchAsync(async (req, res) => { 
     console.log(req.params)
     const camp = await Campground.findById(req.params.id);
     const review = new Review(req.body.review);

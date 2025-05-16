@@ -24,7 +24,7 @@ Router.get('/', catchAsync(async (req, res) => {
 Router.get('/new', isLoggedIn, (req, res) => {
     res.render('campgrounds/new.ejs')
 })
-Router.get('/:id', isLoggedIn,catchAsync(async (req, res) => {
+Router.get('/:id',catchAsync(async (req, res) => {
     const camp = await Campground.findById(req.params.id).populate('review');
     if(!camp)
     {
