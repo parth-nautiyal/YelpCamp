@@ -2,23 +2,10 @@ const express = require('express')
 const Router = express.Router({mergeParams: true}) // very important, as the router has seperate param, so we need :id from the path in /campgrounds/:id/reviews
 const Campground = require('../models/campground')
 const Review = require('../models/reviews')
-const ExpressError = require('../utils/ExpressError');
-const {reviewSchema} = require('../schema')
 const catchAsync = require('../utils/catchAsync')
-const {isLoggedIn} = require('../middleware')
+const {isLoggedIn, validateReviews} = require('../middleware')
 
-const validateReviews = (req, res, next) => {
-    const { error } = reviewSchema.validate(req.body);
-    if (error) {
-        const msg = error.details.map(el => el.message).join(',')
-        throw new ExpressError(400, msg)
-    }
-    else {
-        next();
-    }
-}
 Router.post('/', isLoggedIn, validateReviews, catchAsync(async (req, res) => { 
-    console.log(req.params)
     const camp = await Campground.findById(req.params.id);
     const review = new Review(req.body.review);
     camp.review.push(review);
