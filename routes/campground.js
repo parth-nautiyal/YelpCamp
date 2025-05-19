@@ -5,7 +5,6 @@ const Router = express.Router()
 const {isLoggedIn, isAuthor, validateCampground} = require('../middleware')
 
 
-
 Router.get('/', catchAsync(async (req, res) => {
     const camps = await Campground.find({})
     res.render('campgrounds/home.ejs', { camps })
@@ -14,7 +13,15 @@ Router.get('/new', isLoggedIn, (req, res) => {
     res.render('campgrounds/new.ejs')
 })
 Router.get('/:id',catchAsync(async (req, res) => {
-    const camp = await Campground.findById(req.params.id).populate('review').populate('author');
+    const camp = await Campground.findById(req.params.id).populate(
+        {
+            path:'review',
+            populate:{
+                path: 'author'
+            }
+        }
+    ).populate('author');
+    console.log(camp)
     if(!camp)
     {
         req.flash('error','Campground does not exists')
