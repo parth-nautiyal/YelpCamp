@@ -10,6 +10,7 @@ const flash = require('connect-flash')
 const passport = require('passport')
 const LocalStrategy = require('passport-local')
 const user = require('./models/user')
+const sanitizeV5 = require('./utils/mongoSanitizeV5.js');
 
 const campgroundRoutes = require('./routes/campground')
 const reviewRoutes = require('./routes/reviews');
@@ -29,7 +30,9 @@ mongoose.connect('mongodb://localhost:27017/yelpcamp')
 
 
 app.engine('ejs', ejsMate);
+app.set('query parser', 'extended');
 app.set('views', path.join(__dirname, '/views'))
+app.use(sanitizeV5({ replaceWith: '_' }));
 app.set('views engine', 'ejs')
 
 app.use(bodyParser.json())
