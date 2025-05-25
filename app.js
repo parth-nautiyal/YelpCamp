@@ -1,5 +1,6 @@
 const express = require('express')
 const mongoose = require('mongoose')
+const MongoStore = require('connect-mongo');
 const bodyParser = require('body-parser')
 const ejsMate = require('ejs-mate');
 const app = express()
@@ -12,21 +13,27 @@ const LocalStrategy = require('passport-local')
 const user = require('./models/user')
 const sanitizeV5 = require('./utils/mongoSanitizeV5.js');
 
+
 const campgroundRoutes = require('./routes/campground')
 const reviewRoutes = require('./routes/reviews');
 const userRoutes = require('./routes/users')
 
 const session = require('express-session');
 
+if (process.env.NODE_ENV !== "production") {
+  require('dotenv').config();
+}
 
-mongoose.connect('mongodb://localhost:27017/yelpcamp')
+const dbUrl = process.env.DATABASE_URL;
+
+// Connect to MongoDB Atlas
+mongoose.connect(dbUrl)
   .then(() => {
-    console.log("MongoDB connection open");
+    console.log("MongoDB Atlas connection open");
   })
   .catch(err => {
     console.log("MongoDB connection error", err);
   });
-
 
 
 app.engine('ejs', ejsMate);
@@ -41,18 +48,35 @@ app.use(methodOverride('_method'))
 app.use(express.static(path.join(__dirname,'public')))
 
 
-const sessionInfo = {
-    secret: 'thisisasceret',  // used to sign the session ID cookie (so it can’t be tampered)
-    resave: false,            // don’t save session if nothing is modified
-    saveUninitialized: true,  // save new sessions
-    cookie: {
-        httpOnly: true,       // prevent JavaScript from accessing the cookie (protects against XSS)
-        expires: Date.now() + 1000 * 60 * 60 * 24 * 7, // set expiration date (1 week)
-        maxAge: 1000 * 60 * 60 * 24 * 7                // max age of the cookie
-    }
-}
+const secret = process.env.SECRET || 'thisisasecret';
 
-app.use(session(sessionInfo))
+const store = MongoStore.create({
+    mongoUrl: dbUrl,
+    crypto: {
+        secret
+    },
+    touchAfter: 24 * 3600 // time period in seconds to limit session updates
+});
+
+store.on("error", function (e) {
+    console.log("SESSION STORE ERROR", e);
+});
+
+const sessionInfo = {
+    store,
+    name: 'session', // to avoid default 'connect.sid' cookie name
+    secret,
+    resave: false,
+    saveUninitialized: true,
+    cookie: {
+        httpOnly: true,
+        // secure: true, // enable this when using HTTPS
+        expires: Date.now() + 1000 * 60 * 60 * 24 * 7, // 1 week
+        maxAge: 1000 * 60 * 60 * 24 * 7
+    }
+};
+
+app.use(session(sessionInfo));
 app.use(flash())
 
 app.use(passport.initialize())
