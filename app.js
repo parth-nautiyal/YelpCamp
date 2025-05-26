@@ -99,8 +99,8 @@ app.use('/',userRoutes)
 
 
 app.get('/', (req, res) => {
-    res.send("This is YELPCAMP")
-})
+    res.render('home.ejs');
+});
 
 app.all(/(.*)/, (req, res, next) => {
     next(new ExpressError(404, 'Page Not Found'))
