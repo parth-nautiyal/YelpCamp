@@ -2,11 +2,16 @@ const mongoose = require('mongoose');
 const Campground = require('../models/campground')
 const cities = require('./cities');
 const {places, descriptors} = require('./seedHelpers')
+require('dotenv').config();
+
+
 
 main().catch(err =>console.log(err))
 
 async function main(){
-    await mongoose.connect('mongodb://127.0.0.1:27017/yelpcamp');
+    console.log(process.env.DATABASE_URL)
+    const dbUrl = process.env.DATABASE_URL || 'mongodb://localhost:27017/yelp-camp';
+    mongoose.connect(dbUrl);
 }
 
 const sample = array => array[Math.floor(Math.random()*array.length)]
