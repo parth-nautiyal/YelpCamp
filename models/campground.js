@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const { campgroundSchema } = require('../schema');
 const Review = require('./reviews');
 const Schema = mongoose.Schema
-
+//testing
 const CampgroundSchema = new Schema({
     title: String,
     price: Number,
